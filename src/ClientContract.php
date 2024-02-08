@@ -1,8 +1,10 @@
 <?php
 
-namespace AlNutile\DocusignDriver\Responses;
+namespace AlNutile\DocusignDriver;
 
 use AlNutile\DocusignDriver\Response\Submitter;
+use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
+use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
 use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
 
 abstract class ClientContract

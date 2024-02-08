@@ -3,7 +3,6 @@
 namespace AlNutile\DocusignDriver;
 
 use AlNutile\DocusignDriver\Response\Submitter;
-use AlNutile\DocusignDriver\Responses\ClientContract;
 use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
 use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
@@ -91,7 +90,7 @@ class DocusignDriver extends ClientContract
         }
 
         return ListAllTemplatesResponse::from([
-            'templates' => data_get($response->json(), 'data', []),
+            'templates' => data_get($response->json(), 'envelopeTemplates', []),
         ]);
     }
 
@@ -129,7 +128,6 @@ class DocusignDriver extends ClientContract
      */
     public function createJwtToken(): string
     {
-
         $scope = $this->defaultScope;
         $client_id = config('docusigndriver.integrator_key');
         $user_id = config('docusigndriver.user_id');
@@ -164,10 +162,11 @@ class DocusignDriver extends ClientContract
      */
     public function getDocuSignAccessToken()
     {
-        if (Cache::has('docusign_access_token')) {
+        $expires_in = config('docusigndriver.expires_in');
+
+        if (Cache::has('docusign_access_token') && Cache::has('docusign_access_token_expired')) {
             return Cache::get('docusign_access_token');
         } else {
-
             $jwtToken = $this->createJwtToken();
 
             $auth_url = config('docusigndriver.auth_host');
@@ -180,7 +179,8 @@ class DocusignDriver extends ClientContract
 
             if ($response->successful()) {
                 $data = $response->json();
-                Cache::put('docusign_access_token', $data['access_token']);
+                Cache::put('docusign_access_token', $data['access_token'], $expires_in * 60);
+                Cache::put('docusign_access_token_expired', 1, ($expires_in - 2) * 60);
 
                 return $data['access_token'];
             } else {

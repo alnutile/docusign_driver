@@ -11,7 +11,13 @@ class TemplateCaster implements Cast
     {
         $results = [];
         foreach ($value as $template) {
-            $results[] = TemplateDto::from($template);
+            $results[] = TemplateDto::from([
+                    'id' => $template['templateId'],
+                    'slug' => $template['uri'],
+                    'name' => $template['name'],
+                    'fields' => [],
+                ],
+            );
         }
 
         return $results;
