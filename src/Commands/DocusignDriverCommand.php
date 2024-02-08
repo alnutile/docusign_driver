@@ -1,12 +1,12 @@
 <?php
 
-namespace VendorName\Skeleton\Commands;
+namespace AlNutile\DocusignDriver\Commands;
 
 use Illuminate\Console\Command;
 
-class SkeletonCommand extends Command
+class DocusignDriverCommand extends Command
 {
-    public $signature = 'skeleton';
+    public $signature = 'docusigndriver';
 
     public $description = 'My command';
 
