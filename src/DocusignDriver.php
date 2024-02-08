@@ -23,26 +23,49 @@ class DocusignDriver extends ClientContract
         return '@TODO';
     }
 
+    /**
+     * @NOTE
+     * After the site gets a webhook, not part of the work
+     * This will use the api to get the related signed document
+     */
     public function downloadDocument(string $submitterId): string|bool
     {
         return '@TODO';
     }
 
+    /**
+     * @NOTE get the submitter from the api
+     */
     public function getSubmitter(mixed $submitterId): Submitter
     {
         return Submitter::from([]);
     }
 
+    /**
+     * @NOTE get the submitter from the api
+     */
     public function getSubmission(mixed $submissionId): GetSubmissionResponse
     {
         return GetSubmissionResponse::from([]);
     }
 
+    /**
+     * @NOTE
+     * This is the most important one
+     * Using the API it makes an Envelope of the existing template
+     * We send up an array of labels and names to prefill
+     */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
         return SubmissionResponse::from([]);
     }
 
+    /**
+     * @NOTE
+     * The DocuSign UI can be used to make the template
+     * This is not really needed
+     * We can give it a try later if all goes well
+     */
     public function uploadTemplate(string $template = 'LandAccessAgreementTemplate.pdf')
     {
         return '@TODO';
@@ -50,6 +73,8 @@ class DocusignDriver extends ClientContract
 
     /**
      * @NOTE this one is working
+     * It was just to show I could talk to the API
+     * It also is a good way to check the field names in the template
      */
     public function listTemplates(): ListAllTemplatesResponse
     {
@@ -75,6 +100,11 @@ class DocusignDriver extends ClientContract
         return config('docusigndriver.base_url');
     }
 
+    /**
+     * @NOTE
+     * This uses some of the docusign library to get the token
+     * and then make the client to use in the other functions
+     */
     public function getClient()
     {
         $accessToken = $this->getDocuSignAccessToken();
@@ -88,6 +118,15 @@ class DocusignDriver extends ClientContract
         return $client;
     }
 
+    /**
+     * @NOTE
+     * This is the tricky part for me
+     * I used their library but then
+     * did this to see how it worked.
+     * You can change it back
+     * But it does work but
+     * It does not do refresh well
+     */
     public function createJwtToken(): string
     {
 
@@ -117,7 +156,11 @@ class DocusignDriver extends ClientContract
 
     /**
      * @TODO
-     * The Refresh token is not working 100% yet
+     * This is used from the above to get the JWT Token
+     * Or show the initial consent URL to open in a screen
+     * They have tons of vidoes on this
+     *
+     * @see https://developers.docusign.com/platform/auth/jwt/jwt-get-token/
      */
     public function getDocuSignAccessToken()
     {
