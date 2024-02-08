@@ -164,7 +164,7 @@ class DocusignDriver extends ClientContract
     {
         $expires_in = config('docusigndriver.expires_in');
 
-        if (Cache::has('docusign_access_token') && Cache::has('docusign_access_token_expired')) {
+        if (Cache::has('docusign_access_token') && Cache::has('docusign_access_token_valid')) {
             return Cache::get('docusign_access_token');
         } else {
             $jwtToken = $this->createJwtToken();
@@ -180,7 +180,7 @@ class DocusignDriver extends ClientContract
             if ($response->successful()) {
                 $data = $response->json();
                 Cache::put('docusign_access_token', $data['access_token'], $expires_in * 60);
-                Cache::put('docusign_access_token_expired', 1, ($expires_in - 2) * 60);
+                Cache::put('docusign_access_token_valid', 1, ($expires_in - 2) * 60);
 
                 return $data['access_token'];
             } else {
@@ -201,6 +201,7 @@ class DocusignDriver extends ClientContract
                     );
                 } elseif ($response->status() === 401) {
                     Cache::forget('docusign_access_token');
+                    Cache::forget('docusign_access_token_valid');
 
                     return $this->getDocuSignAccessToken();
                 } else {
