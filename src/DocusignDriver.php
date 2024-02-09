@@ -9,6 +9,8 @@ use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DocusignDriver extends ClientContract
 {
@@ -24,12 +26,29 @@ class DocusignDriver extends ClientContract
 
     /**
      * @NOTE
-     * After the site gets a webhook, not part of the work
-     * This will use the api to get the related signed document
+     * Provide envelopeId to download all the combined documents.
      */
     public function downloadDocument(string $submitterId): string|bool
     {
-        return '@TODO';
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $path = Storage::path(config('docusigndriver.storage_path'));
+        if (!file_exists($path)) {
+            Storage::makeDirectory(config('docusigndriver.storage_path'));
+        }
+
+        $uuid = Str::uuid() . '.pdf';
+        $document = Storage::path(config('docusigndriver.storage_path')) . '/' . $uuid;
+
+        $client
+            ->sink($document)
+            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
+
+        return $document;
     }
 
     /**
