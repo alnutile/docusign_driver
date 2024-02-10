@@ -122,7 +122,7 @@ class DocusignDriver extends ClientContract
             throw new ResponseException($response->body());
         }
 
-        $result = $response->body();
+        $result = json_decode($response->body(), true);
 
         return SubmissionResponse::from([
             'id' => 0,
