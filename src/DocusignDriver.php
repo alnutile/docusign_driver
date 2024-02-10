@@ -81,7 +81,9 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param array $submittersDto [
+     * @param array $submittersDto 
+     * [
+     *   [
      *   "email" => 'jane@example.com',
      *   "name" => 'Jane doe',
      *   "roleName" => "signer",
@@ -97,7 +99,8 @@ class DocusignDriver extends ClientContract
      *               "tabLabel" => "Bio",
      *               "value" => "Developer",
      *           ],
-     *       ],
+     *        ],
+     *     ],
      *   ],
      * ]
      */
