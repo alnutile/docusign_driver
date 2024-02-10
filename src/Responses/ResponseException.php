@@ -1,6 +1,6 @@
 <?php
 
-namespace AlNutile\DocusignDriver;
+namespace AlNutile\DocusignDriver\Responses;
 
 use Exception;
 

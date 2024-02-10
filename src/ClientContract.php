@@ -2,10 +2,10 @@
 
 namespace AlNutile\DocusignDriver;
 
-use AlNutile\DocusignDriver\Response\Submitter;
+use AlNutile\DocusignDriver\Responses\Submitter;
 use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
-use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\SubmissionResponse;
 
 abstract class ClientContract
 {

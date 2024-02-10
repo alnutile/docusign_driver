@@ -2,10 +2,11 @@
 
 namespace AlNutile\DocusignDriver;
 
-use AlNutile\DocusignDriver\Response\Submitter;
+use AlNutile\DocusignDriver\Responses\Submitter;
 use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
-use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\ResponseException;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -76,10 +77,63 @@ class DocusignDriver extends ClientContract
      * This is the most important one
      * Using the API it makes an Envelope of the existing template
      * We send up an array of labels and names to prefill
+     *
+     * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
+     * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
+     *
+     * @param array $submittersDto [
+     *   "email" => 'jane@example.com',
+     *   "name" => 'Jane doe',
+     *   "roleName" => "signer",
+     *   'tabs' => [
+     *       'numericalTabs' => [
+     *           [
+     *               "tabLabel" => "Age",
+     *               "numericalValue" => 72.00,
+     *           ],
+     *       ],
+     *       'textTabs' => [
+     *           [
+     *               "tabLabel" => "Bio",
+     *               "value" => "Developer",
+     *           ],
+     *       ],
+     *   ],
+     * ]
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
-        return SubmissionResponse::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $payload = [
+            'templateId' => $templateId,
+            'templateRoles' => $submittersDto,
+            'status' => 'sent',
+        ];
+
+        $response = $client
+            ->post("/restapi/v2.1/accounts/$accountId/envelopes", $payload);
+
+        if ($response->status() !== 201) {
+            throw new ResponseException($response->body());
+        }
+
+        $result = $response->body();
+
+        return SubmissionResponse::from([
+            'id' => 0,
+            'submission_id' => 0,
+            'uuid' => $result['envelopeId'],
+            'email' => '',
+            'phone' => '',
+            'slug' => '',
+            'sent_at' => $result['statusDateTime'],
+            'values' => [],
+        ]);
     }
 
     /**
