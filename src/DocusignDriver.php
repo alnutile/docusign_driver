@@ -44,9 +44,13 @@ class DocusignDriver extends ClientContract
         $uuid = Str::uuid() . '.pdf';
         $document = Storage::path(config('docusigndriver.storage_path')) . '/' . $uuid;
 
-        $client
+        $response = $client
             ->sink($document)
             ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
 
         return $document;
     }
