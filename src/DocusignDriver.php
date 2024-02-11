@@ -57,11 +57,43 @@ class DocusignDriver extends ClientContract
     }
 
     /**
-     * @NOTE get the submitter from the api
+     * @NOTE Get the sender of the envelope from the api
+     *
+     * @param string $submitter Envelope id.
      */
     public function getSubmitter(mixed $submitterId): Submitter
     {
-        return Submitter::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $response = $client
+            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/recipients?include_tabs=true");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        $recipients = json_decode($response->body(), true);
+
+        $sender = collect($recipients['signers'])
+            ->where('creationReason', 'sender')
+            ->first();
+
+        return Submitter::from([
+            'id' => $sender['recipientId'],
+            'submissionId' => $submitterId,
+            'uuid' => $sender['recipientIdGuid'],
+            'email' => $sender['email'],
+            'slug' => '',
+            'sent_at' => $sender['sentDateTime'],
+            'completed_at' => '',
+            'name' => $sender['name'],
+            'phone' => '',
+            'values' => [],
+        ]);
     }
 
     /**
