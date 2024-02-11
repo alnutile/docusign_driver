@@ -81,27 +81,25 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param  array  $submittersDto  [
-     *                                [
-     *                                "email" => 'jane@example.com',
-     *                                "name" => 'Jane doe',
-     *                                "roleName" => "signer",
-     *                                'tabs' => [
-     *                                'numericalTabs' => [
-     *                                [
-     *                                "tabLabel" => "Age",
-     *                                "numericalValue" => 72.00,
-     *                                ],
-     *                                ],
-     *                                'textTabs' => [
-     *                                [
-     *                                "tabLabel" => "Bio",
-     *                                "value" => "Developer",
-     *                                ],
-     *                                ],
-     *                                ],
-     *                                ],
-     *                                ]
+     * @param array $submittersDto [
+     *   "email" => 'jane@example.com',
+     *   "name" => 'Jane doe',
+     *   "roleName" => "signer",
+     *   'tabs' => [
+     *       'numericalTabs' => [
+     *           [
+     *               "tabLabel" => "Age",
+     *               "numericalValue" => 72.00,
+     *           ],
+     *       ],
+     *       'textTabs' => [
+     *           [
+     *               "tabLabel" => "Bio",
+     *               "value" => "Developer",
+     *           ],
+     *       ],
+     *   ],
+     * ]
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
