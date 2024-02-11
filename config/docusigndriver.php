@@ -19,5 +19,5 @@ return [
     'rsa_public_key' => env('DOCUSIGN_RSA_PUBLIC_KEY'),
     'password' => env('DOCUSIGN_PASSWORD'),
     'integrator_key' => env('DOCUSIGN_INTEGRATOR_KEY'),
-    'storage_path' => env('DOCUSIGN_STORAGE_PATH', 'app/docusign')
+    'storage_path' => env('DOCUSIGN_STORAGE_PATH', 'app/docusign'),
 ];

@@ -2,11 +2,11 @@
 
 namespace AlNutile\DocusignDriver;
 
-use AlNutile\DocusignDriver\Responses\Submitter;
 use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
-use AlNutile\DocusignDriver\Responses\SubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ResponseException;
+use AlNutile\DocusignDriver\Responses\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\Submitter;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -38,12 +38,12 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $path = Storage::path(config('docusigndriver.storage_path'));
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             Storage::makeDirectory(config('docusigndriver.storage_path'));
         }
 
-        $uuid = Str::uuid() . '.pdf';
-        $document = Storage::path(config('docusigndriver.storage_path')) . '/' . $uuid;
+        $uuid = Str::uuid().'.pdf';
+        $document = Storage::path(config('docusigndriver.storage_path')).'/'.$uuid;
 
         $response = $client
             ->sink($document)
@@ -81,27 +81,27 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param array $submittersDto [
-     *     [
-     *       "email" => 'jane@example.com',
-     *       "name" => 'Jane doe',
-     *       "roleName" => "signer",
-     *       'tabs' => [
-     *           'numericalTabs' => [
-     *               [
-     *                   "tabLabel" => "Age",
-     *                   "numericalValue" => 72.00,
-     *               ],
-     *           ],
-     *           'textTabs' => [
-     *               [
-     *                   "tabLabel" => "Bio",
-     *                   "value" => "Developer",
-     *               ],
-     *           ],
-     *       ],
-     *     ],
-     * ]
+     * @param  array  $submittersDto  [
+     *                                [
+     *                                "email" => 'jane@example.com',
+     *                                "name" => 'Jane doe',
+     *                                "roleName" => "signer",
+     *                                'tabs' => [
+     *                                'numericalTabs' => [
+     *                                [
+     *                                "tabLabel" => "Age",
+     *                                "numericalValue" => 72.00,
+     *                                ],
+     *                                ],
+     *                                'textTabs' => [
+     *                                [
+     *                                "tabLabel" => "Bio",
+     *                                "value" => "Developer",
+     *                                ],
+     *                                ],
+     *                                ],
+     *                                ],
+     *                                ]
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
