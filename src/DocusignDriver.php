@@ -2,14 +2,17 @@
 
 namespace AlNutile\DocusignDriver;
 
-use AlNutile\DocusignDriver\Response\Submitter;
-use AlNutile\DocusignDriver\Responses\ClientContract;
 use AlNutile\DocusignDriver\Responses\GetSubmissionResponse;
 use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
-use AlNutile\ElectronicSignatures\Response\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\ResponseException;
+use AlNutile\DocusignDriver\Responses\SubmissionResponse;
+use AlNutile\DocusignDriver\Responses\Submitter;
+use AlNutile\DocusignDriver\Responses\TemplateDto;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class DocusignDriver extends ClientContract
 {
@@ -25,28 +28,144 @@ class DocusignDriver extends ClientContract
 
     /**
      * @NOTE
-     * After the site gets a webhook, not part of the work
-     * This will use the api to get the related signed document
+     * Provide envelopeId to download all the combined documents.
      */
     public function downloadDocument(string $submitterId): string|bool
     {
-        return '@TODO';
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $path = Storage::path(config('docusigndriver.storage_path'));
+        if (! file_exists($path)) {
+            Storage::makeDirectory(config('docusigndriver.storage_path'));
+        }
+
+        $uuid = Str::uuid().'.pdf';
+        $document = Storage::path(config('docusigndriver.storage_path')).'/'.$uuid;
+
+        $response = $client
+            ->sink($document)
+            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        return $document;
     }
 
     /**
-     * @NOTE get the submitter from the api
+     * @NOTE Get the recipient of the envelope from the api
+     *
+     * @param string $submitterId [
+     *   'envelopeId' => 'uuid,
+     *   'recipientId' => 'uuid'
+     * ]
      */
     public function getSubmitter(mixed $submitterId): Submitter
     {
-        return Submitter::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $response = $client
+            ->get(sprintf(
+                "/restapi/v2.1/accounts/$accountId/envelopes/%s/recipients?include_tabs=true",
+                $submitterId['envelopeId'],
+            ));
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        $recipients = json_decode($response->body(), true);
+
+        if (empty($recipients['signers'])) {
+            throw new ResponseException('No submitter found.');
+        }
+
+        $sender = collect($recipients['signers'])
+            ->where('recipientIdGuid', $submitterId['recipientId'])
+            ->where('creationReason', 'sender')
+            ->where('status', 'completed')
+            ->first();
+
+        if (empty($sender)) {
+            throw new ResponseException('No submitter found.');
+        }
+
+        return Submitter::from([
+            'id' => $sender['recipientId'],
+            'submission_id' => $submitterId['envelopeId'],
+            'uuid' => $sender['recipientIdGuid'],
+            'email' => $sender['email'],
+            'slug' => '',
+            'sent_at' => $sender['sentDateTime'],
+            'completed_at' => $sender['signedDateTime'],
+            'name' => $sender['name'],
+            'phone' => '',
+            'values' => $sender['tabs'] ?? [],
+        ]);
     }
 
     /**
-     * @NOTE get the submitter from the api
+     * @NOTE Get the envelope from the api.
+     *
+     * @param string $submissionId EnvelopeId.
      */
     public function getSubmission(mixed $submissionId): GetSubmissionResponse
     {
-        return GetSubmissionResponse::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $response = $client
+            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submissionId?include=recipients,tabs");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        $envelope = json_decode($response->body(), true);
+
+        $submitters = collect($envelope['recipients']['signers'] ?? [])
+            ->where('creationReason', 'sender')
+            ->map(function ($submitter) use($submissionId) {
+                return [
+                    'id' => $submitter['recipientId'],
+                    'submission_id' => $submissionId,
+                    'uuid' => $submitter['recipientIdGuid'],
+                    'email' => $submitter['email'],
+                    'slug' => '',
+                    'sent_at' => $submitter['sentDateTime'],
+                    'completed_at' => $submitter['signedDateTime'] ?? '',
+                    'name' => $submitter['name'],
+                    'phone' => '',
+                    'values' => $submitter['tabs'] ?? [],
+                ];
+            })
+            ->toArray();
+
+        return GetSubmissionResponse::from([
+            'id' => 0,
+            'source' => $envelope['envelopeLocation'],
+            'audit_log_url' => '',
+            'submitters' => $submitters,
+            'template' => new TemplateDto(
+                '',
+                $envelope['templatesUri'],
+                '',
+                []
+            ),
+            'submission_events' => [],
+        ]);
     }
 
     /**
@@ -54,10 +173,63 @@ class DocusignDriver extends ClientContract
      * This is the most important one
      * Using the API it makes an Envelope of the existing template
      * We send up an array of labels and names to prefill
+     *
+     * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
+     * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
+     *
+     * @param array $submittersDto [
+     *   "email" => 'jane@example.com',
+     *   "name" => 'Jane doe',
+     *   "roleName" => "signer",
+     *   'tabs' => [
+     *       'numericalTabs' => [
+     *           [
+     *               "tabLabel" => "Age",
+     *               "numericalValue" => 72.00,
+     *           ],
+     *       ],
+     *       'textTabs' => [
+     *           [
+     *               "tabLabel" => "Bio",
+     *               "value" => "Developer",
+     *           ],
+     *       ],
+     *   ],
+     * ]
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
-        return SubmissionResponse::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $payload = [
+            'templateId' => $templateId,
+            'templateRoles' => $submittersDto,
+            'status' => 'sent',
+        ];
+
+        $response = $client
+            ->post("/restapi/v2.1/accounts/$accountId/envelopes", $payload);
+
+        if ($response->status() !== 201) {
+            throw new ResponseException($response->body());
+        }
+
+        $result = json_decode($response->body(), true);
+
+        return SubmissionResponse::from([
+            'id' => 0,
+            'submission_id' => 0,
+            'uuid' => $result['envelopeId'],
+            'email' => '',
+            'phone' => '',
+            'slug' => '',
+            'sent_at' => $result['statusDateTime'],
+            'values' => [],
+        ]);
     }
 
     /**
@@ -91,7 +263,7 @@ class DocusignDriver extends ClientContract
         }
 
         return ListAllTemplatesResponse::from([
-            'templates' => data_get($response->json(), 'data', []),
+            'templates' => data_get($response->json(), 'envelopeTemplates', []),
         ]);
     }
 
@@ -129,7 +301,6 @@ class DocusignDriver extends ClientContract
      */
     public function createJwtToken(): string
     {
-
         $scope = $this->defaultScope;
         $client_id = config('docusigndriver.integrator_key');
         $user_id = config('docusigndriver.user_id');
@@ -164,10 +335,11 @@ class DocusignDriver extends ClientContract
      */
     public function getDocuSignAccessToken()
     {
-        if (Cache::has('docusign_access_token')) {
+        $expires_in = config('docusigndriver.expires_in');
+
+        if (Cache::has('docusign_access_token') && Cache::has('docusign_access_token_valid')) {
             return Cache::get('docusign_access_token');
         } else {
-
             $jwtToken = $this->createJwtToken();
 
             $auth_url = config('docusigndriver.auth_host');
@@ -180,7 +352,8 @@ class DocusignDriver extends ClientContract
 
             if ($response->successful()) {
                 $data = $response->json();
-                Cache::put('docusign_access_token', $data['access_token']);
+                Cache::put('docusign_access_token', $data['access_token'], $expires_in * 60);
+                Cache::put('docusign_access_token_valid', 1, ($expires_in - 2) * 60);
 
                 return $data['access_token'];
             } else {
@@ -201,6 +374,7 @@ class DocusignDriver extends ClientContract
                     );
                 } elseif ($response->status() === 401) {
                     Cache::forget('docusign_access_token');
+                    Cache::forget('docusign_access_token_valid');
 
                     return $this->getDocuSignAccessToken();
                 } else {

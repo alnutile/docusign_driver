@@ -12,7 +12,7 @@ class TemplateDto extends Data
      * @return void
      */
     public function __construct(
-        public int $id,
+        public string $id,
         public ?string $slug,
         public string $name,
         #[WithCast(FieldsCaster::class)]

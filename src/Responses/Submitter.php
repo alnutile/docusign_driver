@@ -1,6 +1,6 @@
 <?php
 
-namespace AlNutile\DocusignDriver\Response;
+namespace AlNutile\DocusignDriver\Responses;
 
 use Spatie\LaravelData\Data;
 

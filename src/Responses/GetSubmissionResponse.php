@@ -2,7 +2,6 @@
 
 namespace AlNutile\DocusignDriver\Responses;
 
-use AlNutile\DocusignDriver\Response\Submitter;
 use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Data;
 
