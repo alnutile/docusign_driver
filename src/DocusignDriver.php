@@ -57,9 +57,12 @@ class DocusignDriver extends ClientContract
     }
 
     /**
-     * @NOTE Get the sender of the envelope from the api
+     * @NOTE Get the recipient of the envelope from the api
      *
-     * @param string $submitter Envelope id.
+     * @param string $submitterId [
+     *   'envelopeId' => 'uuid,
+     *   'recipientId' => 'uuid'
+     * ]
      */
     public function getSubmitter(mixed $submitterId): Submitter
     {
@@ -70,7 +73,10 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $response = $client
-            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/recipients?include_tabs=true");
+            ->get(sprintf(
+                "/restapi/v2.1/accounts/$accountId/envelopes/%s/recipients?include_tabs=true",
+                $submitterId['envelopeId'],
+            ));
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
@@ -78,21 +84,31 @@ class DocusignDriver extends ClientContract
 
         $recipients = json_decode($response->body(), true);
 
+        if (empty($recipients['signers'])) {
+            throw new ResponseException('No submitter found.');
+        }
+
         $sender = collect($recipients['signers'])
+            ->where('recipientIdGuid', $submitterId['recipientId'])
             ->where('creationReason', 'sender')
+            ->where('status', 'completed')
             ->first();
+
+        if (empty($sender)) {
+            throw new ResponseException('No submitter found.');
+        }
 
         return Submitter::from([
             'id' => $sender['recipientId'],
-            'submissionId' => $submitterId,
+            'submission_id' => $submitterId['envelopeId'],
             'uuid' => $sender['recipientIdGuid'],
             'email' => $sender['email'],
             'slug' => '',
             'sent_at' => $sender['sentDateTime'],
-            'completed_at' => '',
+            'completed_at' => $sender['signedDateTime'],
             'name' => $sender['name'],
             'phone' => '',
-            'values' => [],
+            'values' => $sender['tabs'] ?? [],
         ]);
     }
 
