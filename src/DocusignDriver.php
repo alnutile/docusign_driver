@@ -7,6 +7,7 @@ use AlNutile\DocusignDriver\Responses\ListAllTemplatesResponse;
 use AlNutile\DocusignDriver\Responses\ResponseException;
 use AlNutile\DocusignDriver\Responses\SubmissionResponse;
 use AlNutile\DocusignDriver\Responses\Submitter;
+use AlNutile\DocusignDriver\Responses\TemplateDto;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -113,11 +114,58 @@ class DocusignDriver extends ClientContract
     }
 
     /**
-     * @NOTE get the submitter from the api
+     * @NOTE Get the envelope from the api.
+     *
+     * @param string $submissionId EnvelopeId.
      */
     public function getSubmission(mixed $submissionId): GetSubmissionResponse
     {
-        return GetSubmissionResponse::from([]);
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $response = $client
+            ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submissionId?include=recipients,tabs");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        $envelope = json_decode($response->body(), true);
+
+        $submitters = collect($envelope['recipients']['signers'] ?? [])
+            ->where('creationReason', 'sender')
+            ->map(function ($submitter) use($submissionId) {
+                return [
+                    'id' => $submitter['recipientId'],
+                    'submission_id' => $submissionId,
+                    'uuid' => $submitter['recipientIdGuid'],
+                    'email' => $submitter['email'],
+                    'slug' => '',
+                    'sent_at' => $submitter['sentDateTime'],
+                    'completed_at' => $submitter['signedDateTime'] ?? '',
+                    'name' => $submitter['name'],
+                    'phone' => '',
+                    'values' => $submitter['tabs'] ?? [],
+                ];
+            })
+            ->toArray();
+
+        return GetSubmissionResponse::from([
+            'id' => 0,
+            'source' => $envelope['envelopeLocation'],
+            'audit_log_url' => '',
+            'submitters' => $submitters,
+            'template' => new TemplateDto(
+                '',
+                $envelope['templatesUri'],
+                '',
+                []
+            ),
+            'submission_events' => [],
+        ]);
     }
 
     /**
