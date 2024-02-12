@@ -13,6 +13,11 @@
             "name": "Alfred Nutile",
             "email": "alfrednutile@gmail.com",
             "role": "Developer"
+        },
+        {
+            "name": "Aqib Pandit",
+            "email": "aqibrashidpandit@gmail.com",
+            "role": "Developer"
         }
     ],
     "require": {
