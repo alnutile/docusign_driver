@@ -1,0 +1,118 @@
+{
+    "templateId": "8cc418dc-8eb6-46eb-93f4-1ced851d5f84",
+    "uri": "\/templates\/8cc418dc-8eb6-46eb-93f4-1ced851d5f84",
+    "name": "Kaweah Water Foundation - Well Testing Land Access Agreement",
+    "shared": "false",
+    "passwordProtected": "false",
+    "description": "",
+    "created": "2024-02-07T10:54:49.9000000Z",
+    "lastModified": "2024-02-13T05:51:40.6930000Z",
+    "lastModifiedBy": {
+        "userName": "Admin Kaweahwater",
+        "userId": "ef860922-ecb2-4da5-b8d9-754a0e99ba1e",
+        "email": "admin@kaweahwater.org",
+        "uri": "\/users\/ef860922-ecb2-4da5-b8d9-754a0e99ba1e"
+    },
+    "lastUsed": "9999-12-31T23:59:59.9970000Z",
+    "owner": {
+        "userName": "Admin Kaweahwater",
+        "userId": "ef860922-ecb2-4da5-b8d9-754a0e99ba1e",
+        "email": "admin@kaweahwater.org"
+    },
+    "pageCount": "2",
+    "folderId": "79128cd2-4ec9-4a58-b4d0-23cf7b893fc9",
+    "folderName": "Templates",
+    "folderIds": [
+        "79128cd2-4ec9-4a58-b4d0-23cf7b893fc9"
+    ],
+    "autoMatch": "true",
+    "autoMatchSpecifiedByUser": "false",
+    "documents": [
+        {
+            "documentId": "1",
+            "uri": "\/envelopes\/8cc418dc-8eb6-46eb-93f4-1ced851d5f84\/documents\/1",
+            "name": "Well Testing Land Access Agreement.pdf",
+            "order": "1",
+            "pages": "2",
+            "display": "inline",
+            "includeInDownload": "true",
+            "signerMustAcknowledge": "no_interaction",
+            "templateLocked": "false",
+            "templateRequired": "false"
+        }
+    ],
+    "emailSubject": "Complete with DocuSign: Well Testing Land Access Agreement.pdf",
+    "emailBlurb": "",
+    "signingLocation": "Online",
+    "authoritativeCopy": "false",
+    "notification": {
+        "reminders": {
+            "reminderEnabled": "false",
+            "reminderDelay": "0",
+            "reminderFrequency": "0"
+        },
+        "expirations": {
+            "expireEnabled": "true",
+            "expireAfter": "120",
+            "expireWarn": "0"
+        }
+    },
+    "enforceSignerVisibility": "false",
+    "enableWetSign": "true",
+    "allowMarkup": "false",
+    "allowReassign": "true",
+    "customFields": {
+        "textCustomFields": [
+            {
+                "fieldId": "11030290289",
+                "name": "templateUsageRestriction",
+                "show": "false",
+                "required": "false",
+                "value": "allOptions"
+            }
+        ],
+        "listCustomFields": []
+    },
+    "recipients": {
+        "signers": [
+            {
+                "defaultRecipient": "false",
+                "signInEachLocation": "false",
+                "agentCanEditEmail": "false",
+                "agentCanEditName": "false",
+                "requireUploadSignature": "false",
+                "name": "Testing",
+                "email": "aqi64u@gmail.com",
+                "recipientId": "10881600",
+                "recipientIdGuid": "00000000-0000-0000-0000-000000000000",
+                "accessCode": "",
+                "requireIdLookup": "false",
+                "routingOrder": "1",
+                "note": "",
+                "roleName": "signer",
+                "completedCount": "0",
+                "deliveryMethod": "email",
+                "templateLocked": "false",
+                "templateRequired": "false",
+                "inheritEmailNotificationConfiguration": "false",
+                "recipientType": "signer"
+            }
+        ],
+        "agents": [],
+        "editors": [],
+        "intermediaries": [],
+        "carbonCopies": [],
+        "certifiedDeliveries": [],
+        "inPersonSigners": [],
+        "seals": [],
+        "witnesses": [],
+        "notaries": [],
+        "recipientCount": "1"
+    },
+    "envelopeIdStamping": "true",
+    "autoNavigation": "true",
+    "allowComments": "true",
+    "disableResponsiveDocument": "true",
+    "anySigner": null,
+    "envelopeLocation": "current_site"
+}
