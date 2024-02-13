@@ -60,7 +60,7 @@ class DocusignDriver extends ClientContract
     /**
      * @NOTE Get the recipient of the envelope from the api
      *
-     * @param  string  $submitterId  [
+     * @param  array  $submitterId  [
      *                               'envelopeId' => 'uuid,
      *                               'recipientId' => 'uuid'
      *                               ]
@@ -177,8 +177,8 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param  array  $submittersDto  
-     * 
+     * @param  array  $submittersDto
+     *
      * @see tests/fixtures/submitter.json
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
