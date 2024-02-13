@@ -60,10 +60,11 @@ class DocusignDriver extends ClientContract
     /**
      * @NOTE Get the recipient of the envelope from the api
      *
-     * @param array $submitterId [
-     *                               'envelopeId' => 'uuid,
-     *                               'recipientId' => 'uuid'
-     *                               ]
+     * @param  array  $submitterId  [
+     *                              'envelopeId' => 'uuid,
+     *                              'recipientId' => 'uuid'
+     *                              ]
+     *
      * @throws ResponseException
      */
     public function getSubmitter(mixed $submitterId): Submitter
