@@ -33,14 +33,14 @@ class ElectronicSignatureWebhookController
         $templateId = '8cc418dc-8eb6-46eb-93f4-1ced851d5f84';
         $submitters = [
             [
-                "email" => 'aqi64u@gmail.com',
-                "name" => 'Testing',
-                "roleName" => "signer",
+                'email' => 'aqi64u@gmail.com',
+                'name' => 'Testing',
+                'roleName' => 'signer',
                 'tabs' => [
                     'textTabs' => [
                         [
-                            "tabLabel" => "AgreementDay",
-                            "value" => "15",
+                            'tabLabel' => 'AgreementDay',
+                            'value' => '15',
                         ],
                         [
                             'tabLabel' => 'AgreementMonth',
