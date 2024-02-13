@@ -243,11 +243,25 @@ class DocusignDriver extends ClientContract
         return '@TODO';
     }
 
-    /**
-     * @NOTE this one is working
-     * It was just to show I could talk to the API
-     * It also is a good way to check the field names in the template
-     */
+
+    public function getTemplate(string $templateId): array
+    {
+        $this->baseUrl = config('docusigndriver.rest_url');
+
+        $client = $this->getClient();
+
+        $accountId = config('docusigndriver.account_id');
+
+        $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId");
+
+        if ($response->status() !== 200) {
+            throw new ResponseException($response->body());
+        }
+
+        return $response->json();
+    }
+
+
     public function listTemplates(): ListAllTemplatesResponse
     {
         $this->baseUrl = config('docusigndriver.rest_url');
