@@ -19,7 +19,7 @@ class DocusignDriver extends ClientContract
     protected string $baseUrl = '';
 
     protected string $defaultScope =
-        'signature user_write group_read organization_read permission_read user_read account_read domain_read identity_provider_read user_data_redact asset_group_account_read asset_group_account_clone_write asset_group_account_clone_read';
+    'signature user_write group_read organization_read permission_read user_read account_read domain_read identity_provider_read user_data_redact asset_group_account_read asset_group_account_clone_write asset_group_account_clone_read';
 
     public function getUrlForSubmission(SubmissionResponse $submissionResponse): string
     {
@@ -39,12 +39,12 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $path = Storage::path(config('docusigndriver.storage_path'));
-        if (! file_exists($path)) {
+        if (!file_exists($path)) {
             Storage::makeDirectory(config('docusigndriver.storage_path'));
         }
 
-        $uuid = Str::uuid().'.pdf';
-        $document = Storage::path(config('docusigndriver.storage_path')).'/'.$uuid;
+        $uuid = Str::uuid() . '.pdf';
+        $document = Storage::path(config('docusigndriver.storage_path')) . '/' . $uuid;
 
         $response = $client
             ->sink($document)
@@ -177,25 +177,9 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param  array  $submittersDto  [
-     *                                "email" => 'jane@example.com',
-     *                                "name" => 'Jane doe',
-     *                                "roleName" => "signer",
-     *                                'tabs' => [
-     *                                'numericalTabs' => [
-     *                                [
-     *                                "tabLabel" => "Age",
-     *                                "numericalValue" => 72.00,
-     *                                ],
-     *                                ],
-     *                                'textTabs' => [
-     *                                [
-     *                                "tabLabel" => "Bio",
-     *                                "value" => "Developer",
-     *                                ],
-     *                                ],
-     *                                ],
-     *                                ]
+     * @param  array  $submittersDto  
+     * 
+     * @see tests/fixtures/submitter.json
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
@@ -252,7 +236,8 @@ class DocusignDriver extends ClientContract
 
         $accountId = config('docusigndriver.account_id');
 
-        $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId");
+        $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId?include=tabs");
+
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
@@ -296,7 +281,7 @@ class DocusignDriver extends ClientContract
         $accessToken = $this->getDocuSignAccessToken();
 
         $client = Http::withHeaders([
-            'Authorization' => 'Bearer '.$accessToken,
+            'Authorization' => 'Bearer ' . $accessToken,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->baseUrl($this->baseUrl);
@@ -378,21 +363,21 @@ class DocusignDriver extends ClientContract
                      */
                     $client_id = config('docusigndriver.integrator_key');
 
-                    return config('docusigndriver.base_url').'/oauth/auth?prompt=login&response_type=code&'
-                    .http_build_query(
-                        [
-                            'scope' => 'impersonation+'.$this->defaultScope,
-                            'client_id' => $client_id,
-                            'redirect_uri' => route('docusign.callback'),
-                        ]
-                    );
+                    return config('docusigndriver.base_url') . '/oauth/auth?prompt=login&response_type=code&'
+                        . http_build_query(
+                            [
+                                'scope' => 'impersonation+' . $this->defaultScope,
+                                'client_id' => $client_id,
+                                'redirect_uri' => route('docusign.callback'),
+                            ]
+                        );
                 } elseif ($response->status() === 401) {
                     Cache::forget('docusign_access_token');
                     Cache::forget('docusign_access_token_valid');
 
                     return $this->getDocuSignAccessToken();
                 } else {
-                    throw new \Exception('Failed to obtain access token from DocuSign '.$response->body());
+                    throw new \Exception('Failed to obtain access token from DocuSign ' . $response->body());
                 }
             }
         }

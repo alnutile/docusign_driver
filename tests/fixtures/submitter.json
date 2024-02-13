@@ -1,0 +1,25 @@
+{
+    "templateId": "eccab7c3-f572-498b-8baf-47fe51818f46",
+    "templateRoles": [
+        {
+            "email": "alfred@break9.com",
+            "name": "Jane Doe",
+            "roleName": "signer",
+            "tabs": {
+                "numberTabs": [
+                    {
+                        "tabLabel": "Age",
+                        "value": "72"
+                    }
+                ],
+                "textTabs": [
+                    {
+                        "tabLabel": "Bio",
+                        "value": "Developer"
+                    }
+                ]
+            }
+        }
+    ],
+    "status": "sent"
+}
