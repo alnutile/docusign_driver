@@ -60,13 +60,22 @@ class DocusignDriver extends ClientContract
     /**
      * @NOTE Get the recipient of the envelope from the api
      *
-     * @param  array  $submitterId  [
+     * @param array $submitterId [
      *                               'envelopeId' => 'uuid,
      *                               'recipientId' => 'uuid'
      *                               ]
+     * @throws ResponseException
      */
     public function getSubmitter(mixed $submitterId): Submitter
     {
+        if (empty($submitterId['envelopeId'])) {
+            throw new ResponseException('envelopeId missing.');
+        }
+
+        if (empty($submitterId['recipientId'])) {
+            throw new ResponseException('envelopeId missing.');
+        }
+
         $this->baseUrl = config('docusigndriver.rest_url');
 
         $client = $this->getClient();
