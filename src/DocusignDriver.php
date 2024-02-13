@@ -186,8 +186,6 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param  array  $submittersDto
-     *
      * @see tests/fixtures/submitter.json
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
