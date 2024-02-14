@@ -222,7 +222,7 @@ class DocusignDriver extends ClientContract
             'uuid' => $result['envelopeId'],
             'email' => '',
             'phone' => '',
-            'slug' => $result['documentsUri'],
+            'slug' => $result['envelopeId'],
             'sent_at' => $result['statusDateTime'],
             'values' => [],
         ]);
