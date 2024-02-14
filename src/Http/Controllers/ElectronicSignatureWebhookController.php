@@ -9,9 +9,6 @@ class ElectronicSignatureWebhookController
 {
     /**
      * @see https://developers.docusign.com/platform/webhooks/connect/event-triggers/
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function handleWebhook(Request $request): JsonResponse
     {
