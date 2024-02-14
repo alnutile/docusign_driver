@@ -19,7 +19,7 @@ class DocusignDriverServiceProvider extends PackageServiceProvider
         ]);
 
         Route::middleware('api')->prefix('api')->group(function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/api.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
         });
     }
 

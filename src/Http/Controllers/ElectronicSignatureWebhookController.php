@@ -2,7 +2,6 @@
 
 namespace AlNutile\DocusignDriver\Http\Controllers;
 
-use AlNutile\DocusignDriver\DocusignDriver;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
