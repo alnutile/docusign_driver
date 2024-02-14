@@ -3,7 +3,6 @@
 namespace AlNutile\DocusignDriver;
 
 use AlNutile\DocusignDriver\Commands\DocusignDriverCommand;
-
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
