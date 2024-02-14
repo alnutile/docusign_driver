@@ -114,6 +114,14 @@ class DocusignDriver extends ClientContract
         ]);
     }
 
+
+    public function getSubmissionStatus(mixed $submissionId): bool 
+    {
+        $results = $this->getSubmission($submissionId);
+
+        return $results->status === 'completed';
+    }
+
     /**
      * @NOTE Get the envelope from the api.
      *
@@ -136,8 +144,6 @@ class DocusignDriver extends ClientContract
 
         $envelope = json_decode($response->body(), true);
 
-        //put_fixture("docusign_get_submission.json", $envelope);  
-
         $submitters = collect($envelope['recipients']['signers'] ?? [])
             ->where('creationReason', 'sender')
             ->map(function ($submitter) use ($submissionId) {
@@ -158,6 +164,7 @@ class DocusignDriver extends ClientContract
 
         return GetSubmissionResponse::from([
             'id' => 0,
+            'status' => $envelope['status'],
             'source' => $envelope['envelopeLocation'],
             'audit_log_url' => '',
             'submitters' => $submitters,
@@ -170,6 +177,7 @@ class DocusignDriver extends ClientContract
             'submission_events' => [],
         ]);
     }
+
 
     /**
      * @NOTE
@@ -197,8 +205,6 @@ class DocusignDriver extends ClientContract
             'templateRoles' => $submittersDto,
             'status' => 'sent',
         ];
-
-        put_fixture("docusign_example_submit.json", $payload);
 
         $response = $client
             ->post("/restapi/v2.1/accounts/$accountId/envelopes", $payload);
