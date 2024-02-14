@@ -7,8 +7,8 @@ use Spatie\LaravelData\Data;
 class SubmissionResponse extends Data
 {
     public function __construct(
-        public int $id,
-        public int $submission_id,
+        public mixed $id,
+        public mixed $submission_id,
         public string $uuid,
         public string $email,
         public string $slug,
