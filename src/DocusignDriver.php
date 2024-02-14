@@ -49,12 +49,13 @@ class DocusignDriver extends ClientContract
         $response = $client
             ->sink($document)
             ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
+        
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
         }
 
-        return $document;
+        return base64_encode(file_get_contents($document));
     }
 
     /**
@@ -135,6 +136,8 @@ class DocusignDriver extends ClientContract
 
         $envelope = json_decode($response->body(), true);
 
+        //put_fixture("docusign_get_submission.json", $envelope);  
+
         $submitters = collect($envelope['recipients']['signers'] ?? [])
             ->where('creationReason', 'sender')
             ->map(function ($submitter) use ($submissionId) {
@@ -195,6 +198,8 @@ class DocusignDriver extends ClientContract
             'status' => 'sent',
         ];
 
+        put_fixture("docusign_example_submit.json", $payload);
+
         $response = $client
             ->post("/restapi/v2.1/accounts/$accountId/envelopes", $payload);
 
@@ -238,7 +243,7 @@ class DocusignDriver extends ClientContract
 
         $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId?include=tabs");
 
-
+        put_fixture("docusign_get_template" .$templateId. ".json", $response->json());
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
         }
