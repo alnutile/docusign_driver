@@ -8,13 +8,6 @@ use Illuminate\Http\Request;
 
 class ElectronicSignatureWebhookController
 {
-    private DocusignDriver $docusignDriver;
-
-    public function __construct(DocusignDriver $docusignDriver)
-    {
-        $this->docusignDriver = $docusignDriver;
-    }
-
     public function handleWebhook(Request $request): JsonResponse
     {
         $webhook = $request->all();
