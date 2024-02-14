@@ -191,6 +191,7 @@ class DocusignDriver extends ClientContract
      * @param  array  $submittersDto  
      * 
      * @see tests/fixtures/submitter.json
+     * @see tests/fixtures/docusign_submission_response.json
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
@@ -216,12 +217,12 @@ class DocusignDriver extends ClientContract
         $result = json_decode($response->body(), true);
 
         return SubmissionResponse::from([
-            'id' => 0,
-            'submission_id' => 0,
+            'id' => $result['envelopeId'],
+            'submission_id' => $result['envelopeId'],
             'uuid' => $result['envelopeId'],
             'email' => '',
             'phone' => '',
-            'slug' => '',
+            'slug' => $result['documentsUri'],
             'sent_at' => $result['statusDateTime'],
             'values' => [],
         ]);
