@@ -6,6 +6,7 @@ return [
     'rest_url' => env('DOCUSIGN_URL', 'https://demo.docusign.net'),
     'host' => 'https://demo.docusign.net/restapi',
     'base_url' => env('DOCUSIGN_BASE_URL', 'https://account-d.docusign.com'),
+    'callback_url' => env('DOCUSIGN_CALLBACK_URL', '/docusign/callback'),
     //https://account.docusign.com
     //https://account-d.docusign.com
     //https://account-s.docusign.com
