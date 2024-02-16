@@ -49,7 +49,6 @@ class DocusignDriver extends ClientContract
         $response = $client
             ->sink($document)
             ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
-        
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
@@ -124,8 +123,7 @@ class DocusignDriver extends ClientContract
         ]);
     }
 
-
-    public function getSubmissionStatus(mixed $submissionId): bool 
+    public function getSubmissionStatus(mixed $submissionId): bool
     {
         $results = $this->getSubmission($submissionId);
 
@@ -187,7 +185,6 @@ class DocusignDriver extends ClientContract
             'submission_events' => [],
         ]);
     }
-
 
     /**
      * @NOTE
@@ -256,7 +253,6 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId?include=tabs");
-
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
