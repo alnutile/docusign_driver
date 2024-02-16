@@ -49,12 +49,13 @@ class DocusignDriver extends ClientContract
         $response = $client
             ->sink($document)
             ->get("/restapi/v2.1/accounts/$accountId/envelopes/$submitterId/documents/combined");
+        
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
         }
 
-        return $document;
+        return base64_encode(file_get_contents($document));
     }
 
     /**
@@ -123,6 +124,14 @@ class DocusignDriver extends ClientContract
         ]);
     }
 
+
+    public function getSubmissionStatus(mixed $submissionId): bool 
+    {
+        $results = $this->getSubmission($submissionId);
+
+        return $results->status === 'completed';
+    }
+
     /**
      * @NOTE Get the envelope from the api.
      *
@@ -165,6 +174,7 @@ class DocusignDriver extends ClientContract
 
         return GetSubmissionResponse::from([
             'id' => 0,
+            'status' => $envelope['status'],
             'source' => $envelope['envelopeLocation'],
             'audit_log_url' => '',
             'submitters' => $submitters,
@@ -178,6 +188,7 @@ class DocusignDriver extends ClientContract
         ]);
     }
 
+
     /**
      * @NOTE
      * This is the most important one
@@ -188,6 +199,7 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
      * @see tests/fixtures/submitter.json
+     * @see tests/fixtures/docusign_submission_response.json
      */
     public function submit(array $submittersDto, mixed $templateId): SubmissionResponse
     {
@@ -213,12 +225,12 @@ class DocusignDriver extends ClientContract
         $result = json_decode($response->body(), true);
 
         return SubmissionResponse::from([
-            'id' => 0,
-            'submission_id' => 0,
+            'id' => $result['envelopeId'],
+            'submission_id' => $result['envelopeId'],
             'uuid' => $result['envelopeId'],
             'email' => '',
             'phone' => '',
-            'slug' => '',
+            'slug' => $result['envelopeId'],
             'sent_at' => $result['statusDateTime'],
             'values' => [],
         ]);
@@ -244,6 +256,7 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId?include=tabs");
+
 
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());

@@ -13,6 +13,7 @@ class GetSubmissionResponse extends Data
     public function __construct(
         public int $id,
         public string $source,
+        public ?string $status,
         public ?string $audit_log_url,
         #[WithCast(CastSubmitters::class)]
         public array $submitters,

@@ -7,7 +7,7 @@ use Spatie\LaravelData\Data;
 class Submitter extends Data
 {
     public function __construct(
-        public int $id,
+        public mixed $id,
         public ?string $submission_id,
         public ?string $uuid,
         public string $email,
