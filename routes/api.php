@@ -4,5 +4,5 @@ use AlNutile\DocusignDriver\Http\Controllers\ElectronicSignatureWebhookControlle
 use Illuminate\Support\Facades\Route;
 
 Route::middleware('api')->prefix('api')->group(function () {
-    Route::any('/webhooks/electronic_signature_system', [ElectronicSignatureWebhookController::class, 'handleWebhook']);
+    Route::any('/webhooks/electronic_signature_system', [ElectronicSignatureWebhookController::class, 'handleWebhook'])->name('docusign.callback');
 });
