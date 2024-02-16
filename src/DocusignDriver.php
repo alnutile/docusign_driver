@@ -39,12 +39,12 @@ class DocusignDriver extends ClientContract
         $accountId = config('docusigndriver.account_id');
 
         $path = Storage::path(config('docusigndriver.storage_path'));
-        if (!file_exists($path)) {
+        if (! file_exists($path)) {
             Storage::makeDirectory(config('docusigndriver.storage_path'));
         }
 
-        $uuid = Str::uuid() . '.pdf';
-        $document = Storage::path(config('docusigndriver.storage_path')) . '/' . $uuid;
+        $uuid = Str::uuid().'.pdf';
+        $document = Storage::path(config('docusigndriver.storage_path')).'/'.$uuid;
 
         $response = $client
             ->sink($document)
@@ -61,13 +61,23 @@ class DocusignDriver extends ClientContract
     /**
      * @NOTE Get the recipient of the envelope from the api
      *
-     * @param  string  $submitterId  [
-     *                               'envelopeId' => 'uuid,
-     *                               'recipientId' => 'uuid'
-     *                               ]
+     * @param  array  $submitterId  [
+     *                              'envelopeId' => 'uuid,
+     *                              'recipientId' => 'uuid'
+     *                              ]
+     *
+     * @throws ResponseException
      */
     public function getSubmitter(mixed $submitterId): Submitter
     {
+        if (empty($submitterId['envelopeId'])) {
+            throw new ResponseException('envelopeId missing.');
+        }
+
+        if (empty($submitterId['recipientId'])) {
+            throw new ResponseException('envelopeId missing.');
+        }
+
         $this->baseUrl = config('docusigndriver.rest_url');
 
         $client = $this->getClient();
@@ -188,8 +198,6 @@ class DocusignDriver extends ClientContract
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/envelopes/create/
      * https://developers.docusign.com/docs/esign-rest-api/reference/envelopes/enveloperecipienttabs/#tab-types
      *
-     * @param  array  $submittersDto  
-     * 
      * @see tests/fixtures/submitter.json
      * @see tests/fixtures/docusign_submission_response.json
      */
@@ -239,7 +247,6 @@ class DocusignDriver extends ClientContract
         return '@TODO';
     }
 
-
     public function getTemplate(string $templateId): array
     {
         $this->baseUrl = config('docusigndriver.rest_url');
@@ -250,14 +257,13 @@ class DocusignDriver extends ClientContract
 
         $response = $client->get("/restapi/v2.1/accounts/$accountId/templates/$templateId?include=tabs");
 
-        put_fixture("docusign_get_template" .$templateId. ".json", $response->json());
+
         if ($response->status() !== 200) {
             throw new ResponseException($response->body());
         }
 
         return $response->json();
     }
-
 
     public function listTemplates(): ListAllTemplatesResponse
     {
@@ -293,7 +299,7 @@ class DocusignDriver extends ClientContract
         $accessToken = $this->getDocuSignAccessToken();
 
         $client = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $accessToken,
+            'Authorization' => 'Bearer '.$accessToken,
             'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ])->baseUrl($this->baseUrl);
@@ -375,10 +381,10 @@ class DocusignDriver extends ClientContract
                      */
                     $client_id = config('docusigndriver.integrator_key');
 
-                    return config('docusigndriver.base_url') . '/oauth/auth?prompt=login&response_type=code&'
-                        . http_build_query(
+                    return config('docusigndriver.base_url').'/oauth/auth?prompt=login&response_type=code&'
+                        .http_build_query(
                             [
-                                'scope' => 'impersonation+' . $this->defaultScope,
+                                'scope' => 'impersonation+'.$this->defaultScope,
                                 'client_id' => $client_id,
                                 'redirect_uri' => route('docusign.callback'),
                             ]
@@ -389,7 +395,7 @@ class DocusignDriver extends ClientContract
 
                     return $this->getDocuSignAccessToken();
                 } else {
-                    throw new \Exception('Failed to obtain access token from DocuSign ' . $response->body());
+                    throw new \Exception('Failed to obtain access token from DocuSign '.$response->body());
                 }
             }
         }

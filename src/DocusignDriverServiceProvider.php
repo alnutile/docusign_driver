@@ -8,16 +8,6 @@ use Spatie\LaravelPackageTools\PackageServiceProvider;
 
 class DocusignDriverServiceProvider extends PackageServiceProvider
 {
-    /**
-     * Bootstrap any package services.
-     */
-    public function boot(): void
-    {
-        $this->publishes([
-            __DIR__.'/../config/docusigndriver.php' => config_path('docusigndriver.php'),
-        ]);
-    }
-
     public function configurePackage(Package $package): void
     {
         /*
@@ -29,6 +19,7 @@ class DocusignDriverServiceProvider extends PackageServiceProvider
             ->name('docusigndriver')
             ->hasConfigFile()
             ->hasViews()
+            ->hasRoute('api')
             ->hasMigration('create_docusigndriver_table')
             ->hasCommand(DocusignDriverCommand::class);
     }
